@@ -1,0 +1,58 @@
+{
+  "info": {
+    "name": "E SHOP - Platzi Fake Store API",
+    "description": "Requests used by the Flutter E SHOP project. Import this collection into Postman. Set the collection variable baseUrl before sending requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://api.escuelajs.co/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "productId", "value": "1" },
+    { "key": "email", "value": "" },
+    { "key": "password", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get all products",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/products?offset=0&limit=50" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 200', function () { pm.response.to.have.status(200); });", "pm.test('Response is an array', function () { pm.expect(pm.response.json()).to.be.an('array'); });"] } }]
+        },
+        {
+          "name": "Get product by ID",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/products/{{productId}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 200', function () { pm.response.to.have.status(200); });", "pm.test('Product has an id', function () { pm.expect(pm.response.json()).to.have.property('id'); });"] } }]
+        },
+        {
+          "name": "Get categories",
+          "request": { "method": "GET", "header": [{ "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/categories" }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (save tokens)",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Accept", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/auth/login" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Login succeeded', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });", "const data = pm.response.json();", "if (data.access_token) pm.collectionVariables.set('accessToken', data.access_token);", "if (data.refresh_token) pm.collectionVariables.set('refreshToken', data.refresh_token);"] } }]
+        },
+        {
+          "name": "Get current profile",
+          "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Accept", "value": "application/json" }], "url": "{{baseUrl}}/auth/profile" }
+        },
+        {
+          "name": "Refresh token",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/auth/refresh-token" }
+        },
+        {
+          "name": "Create user (sign up)",
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Your Name\",\n  \"email\": \"your.unique.email@example.com\",\n  \"password\": \"your-password\",\n  \"avatar\": \"https://api.dicebear.com/7.x/initials/png?seed=YourName\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/users/" }
+        }
+      ]
+    }
+  ]
+}
